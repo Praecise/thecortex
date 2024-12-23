@@ -1,0 +1,39 @@
+# deploy/k8s/cortex-api.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cortex-api
+  namespace: cortex
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: cortex-api
+  template:
+    metadata:
+      labels:
+        app: cortex-api
+    spec:
+      containers:
+      - name: cortex-api
+        image: cortex:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: CORTEX_NODE_TYPE
+          value: "api"
+        - name: CORTEX_NODE_ID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        volumeMounts:
+        - name: config
+          mountPath: /app/config
+        - name: logs
+          mountPath: /app/logs
+      volumes:
+      - name: config
+        configMap:
+          name: cortex-config
+      - name: logs
+        emptyDir: {}

@@ -1,0 +1,41 @@
+# deploy/k8s/cortex-trainer.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cortex-trainer
+  namespace: cortex
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: cortex-trainer
+  template:
+    metadata:
+      labels:
+        app: cortex-trainer
+    spec:
+      containers:
+      - name: cortex-trainer
+        image: cortex:latest
+        env:
+        - name: CORTEX_NODE_TYPE
+          value: "local"
+        - name: CORTEX_NODE_ID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+        volumeMounts:
+        - name: config
+          mountPath: /app/config
+        - name: checkpoints
+          mountPath: /app/checkpoints
+      volumes:
+      - name: config
+        configMap:
+          name: cortex-config
+      - name: checkpoints
+        persistentVolumeClaim:
+          claimName: cortex-checkpoints-pvc

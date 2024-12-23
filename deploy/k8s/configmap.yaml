@@ -1,0 +1,17 @@
+# deploy/k8s/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cortex-config
+  namespace: cortex
+data:
+  config.yaml: |
+    network:
+      retry_attempts: 3
+      connection_timeout: 30
+    training:
+      batch_size: 32
+      learning_rate: 0.001
+    monitoring:
+      log_level: INFO
+      enable_prometheus: true

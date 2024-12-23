@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+  # API Node
+  cortex-api:
+    build:
+      context: .
+      target: production
+    ports:
+      - "8000:8000"
+    environment:
+      - CORTEX_NODE_TYPE=api
+      - CORTEX_NODE_ID=api_node
+      - CORTEX_REGION=default
+      - PROMETHEUS_PORT=9090
+    volumes:
+      - ./config:/app/config
+      - ./logs:/app/logs
+      - ./checkpoints:/app/checkpoints
+    command: uvicorn cortex.api.endpoints:app --host 0.0.0.0 --port 8000
+    depends_on:
+      - prometheus
+      - grafana
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  # Training Node
+  cortex-trainer:
+    build:
+      context: .
+      target: production
+    environment:
+      - CORTEX_NODE_TYPE=local
+      - CORTEX_NODE_ID=trainer_node
+      - CORTEX_REGION=default
+    volumes:
+      - ./config:/app/config
+      - ./logs:/app/logs
+      - ./checkpoints:/app/checkpoints
+    deploy:
+      replicas: 2
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  # Global Node
+  cortex-global:
+    build:
+      context: .
+      target: production
+    ports:
+      - "8765:8765"
+    environment:
+      - CORTEX_NODE_TYPE=global
+      - CORTEX_NODE_ID=global_node
+      - CORTEX_REGION=default
+    volumes:
+      - ./config:/app/config
+      - ./logs:/app/logs
+    depends_on:
+      - cortex-api
+
+  # Monitoring stack
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./deploy/prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./deploy/grafana/provisioning:/etc/grafana/provisioning
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=cortex-admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    depends_on:
+      - prometheus
+
+volumes:
+  prometheus_data:
+  grafana_data:

@@ -1,0 +1,12 @@
+# deploy/prometheus/rules/alerting_rules.yml
+groups:
+  - name: cortex_alerts
+    rules:
+      - alert: HighMemoryUsage
+        expr: cortex_memory_usage_bytes > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High memory usage on {{ $labels.instance }}
+          description: Memory usage is above 90% for 5 minutes

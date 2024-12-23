@@ -1,0 +1,13 @@
+# deploy/k8s/persistent-volume.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cortex-checkpoints-pvc
+  namespace: cortex
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: standard

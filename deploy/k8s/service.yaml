@@ -1,0 +1,13 @@
+# deploy/k8s/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cortex-api-service
+  namespace: cortex
+spec:
+  selector:
+    app: cortex-api
+  ports:
+  - port: 80
+    targetPort: 8000
+  type: LoadBalancer

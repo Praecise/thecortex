@@ -1,0 +1,26 @@
+network:
+  websocket_url: "ws://localhost:8765"
+  node_id: "test_node_1"
+  retry_attempts: 3
+  connection_timeout: 30
+  batch_size: 10
+  max_wait: 1.0
+
+training:
+  input_dim: 784
+  output_dim: 10
+  batch_size: 32
+  learning_rate: 0.001
+  hidden_dims: [512, 256]
+  dropout_rate: 0.2
+  max_epochs: 2
+  checkpoint_interval: 10
+  checkpoint_dir: "./checkpoints"
+
+security:
+  enable_encryption: true
+  encryption_key: null
+
+monitoring:
+  log_level: "DEBUG"
+  log_file: "logs/test.log"

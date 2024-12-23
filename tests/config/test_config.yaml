@@ -1,0 +1,20 @@
+monitoring:
+  log_file: logs/test.log
+  log_level: INFO
+network:
+  connection_timeout: 5
+  node_id: test_node
+  retry_attempts: 3
+  websocket_url: ws://test
+security:
+  enable_encryption: false
+training:
+  batch_size: 32
+  dropout_rate: 0.2
+  hidden_dims:
+  - 512
+  - 256
+  input_dim: 784
+  learning_rate: 0.001
+  max_epochs: 2
+  output_dim: 10

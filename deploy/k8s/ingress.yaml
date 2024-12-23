@@ -1,0 +1,25 @@
+# deploy/k8s/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cortex-ingress
+  namespace: cortex
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  rules:
+  - host: cortex.yourdomain.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: cortex-api-service
+            port:
+              number: 80
+  tls:
+  - hosts:
+    - cortex.yourdomain.com
+    secretName: cortex-tls
